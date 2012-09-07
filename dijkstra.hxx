@@ -146,7 +146,6 @@ WeightType dijkstra<WeightType>::find_path(
   std::vector<vertex_type*> unvisited_nodes(graph_size);
   Comparator comp;
 
-  // For every node in graph, set distance to inifinity
   for(std::size_t i = 0; i < graph_size; ++i)
     unvisited_nodes[i] = &vertices[i];
 
@@ -166,7 +165,7 @@ WeightType dijkstra<WeightType>::find_path(
     unvisited_nodes.pop_back();
     current->visited = true;
 
-    if(current->distance == std::numeric_limits<weight_type>::max()
+    if(current->distance == vertex_distance_init_value
        || current->index == destination)
       break;
 
