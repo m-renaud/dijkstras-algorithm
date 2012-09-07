@@ -4,42 +4,39 @@
 
 int main()
 {
-  // using neighbour_type = std::vector<std::pair<int, std::size_t> >;
-  // dijkstra_graph<int> g;
-
   mrr::dijkstra<int> d;
 
   d.add_vertex(
-    0,"",
+    0,"A",
     {
-      std::make_pair(1,1),
-      std::make_pair(3,2)
+      {1,1},
+      {3,2}
     }
   );
 
   d.add_vertex(
-    1,"",
+    1,"B",
     {
-      std::make_pair(1,0),
-      std::make_pair(1,2),
-      std::make_pair(4,3)
+      {1,0},
+      {1,2},
+      {4,3}
     }
   );
 
   d.add_vertex(
-    2,"",
+    2,"C",
     {
-      std::make_pair(3,0),
-      std::make_pair(1,1),
-      std::make_pair(1,3)
+      {3,0},
+      {1,1},
+      {1,3}
     }
   );
 
   d.add_vertex(
-    3,"",
+    3,"D",
     {
-      std::make_pair(4,1),
-      std::make_pair(1,2)
+      {4,1},
+      {1,2}
     }
   );
 
