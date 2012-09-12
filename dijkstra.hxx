@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <functional>
 #include <limits>
-#include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -22,20 +22,18 @@ struct dijkstra_vertex
 {
   using weight_type = WeightType;
   using label_type = LabelType;
-  using index_type = std::size_t;
-  using neighbour_type = std::pair<weight_type, index_type>;
+  using neighbour_type = std::pair<weight_type, label_type>;
   using neighbour_list_type = std::vector<neighbour_type>;
 
   dijkstra_vertex(
-    index_type const& i, std::string const& name_,
+    label_type const& label_,
     neighbour_list_type const& neighbours_
   )
-    : index(i), name(name_), neighbours(neighbours_)
+    : label(label_), neighbours(neighbours_)
   {
   }
 
-  index_type index;
-  std::string name;
+  label_type label;
   weight_type distance;
   bool visited;
   neighbour_list_type neighbours;
@@ -65,7 +63,6 @@ class dijkstra
   using weight_type = WeightType;
   using label_type = LabelType;
   using vertex_type = dijkstra_vertex<weight_type, label_type>;
-  using index_type = typename vertex_type::index_type;
   using vertex_list_type = std::vector<vertex_type>;
   using size_type = typename vertex_list_type::size_type;
 
@@ -81,16 +78,12 @@ public:
   }
 
   void add_vertex(
-    index_type const& i, std::string const& name_,
-    neighbour_list_type const& neighbours_
+    label_type const& label,
+    neighbour_list_type const& neighbours
   )
   {
-    vertices.push_back(
-      vertex_type(
-        i, name_, neighbours_
-      )
-    );
-
+    vertices.push_back(vertex_type(label, neighbours));
+    label_map.insert(std::make_pair(label,graph_size));
     ++graph_size;
   }
 
@@ -99,7 +92,7 @@ public:
     typename Op = std::plus<weight_type>
   >
   weight_type find_path(
-    index_type start, index_type destination,
+    label_type start, label_type destination,
     weight_type init_val = std::numeric_limits<weight_type>::max()
   )
   {
@@ -109,7 +102,7 @@ public:
   }
 
   weight_type find_shortest_path(
-    index_type start, index_type destination,
+    label_type start, label_type destination,
     weight_type init_val = std::numeric_limits<weight_type>::max()
   )
   {
@@ -119,7 +112,7 @@ public:
   }
 
   weight_type find_longest_path(
-    index_type start, index_type destination,
+    label_type start, label_type destination,
     weight_type init_val = std::numeric_limits<weight_type>::min()
   )
   {
@@ -132,12 +125,12 @@ private:
   void reset_graph();
 
   template <typename Pred, typename Op = std::plus<weight_type> >
-  weight_type find_path_impl(index_type start, index_type destination);
+  weight_type find_path_impl(label_type start, label_type destination);
 
   // Graph representation
   std::vector<vertex_type> vertices;
   size_type graph_size;
-
+  std::unordered_map<label_type, std::size_t> label_map;
 
   // Path finding variables
   weight_type vertex_distance_init_value;
@@ -163,7 +156,7 @@ void dijkstra<WeightType,LabelType>::reset_graph()
 template <typename WeightType, typename LabelType>
 template <typename Pred, typename Op>
 WeightType dijkstra<WeightType,LabelType>::find_path_impl(
-  index_type start, index_type destination
+  label_type start, label_type destination
 )
 {
   vertex_type* current;
@@ -174,7 +167,7 @@ WeightType dijkstra<WeightType,LabelType>::find_path_impl(
   for(std::size_t i = 0; i < graph_size; ++i)
     unvisited_nodes[i] = &vertices[i];
 
-  vertices[start].distance = 0;
+  vertices[label_map[start]].distance = 0;
 
   std::make_heap(
     unvisited_nodes.begin(),
@@ -191,18 +184,19 @@ WeightType dijkstra<WeightType,LabelType>::find_path_impl(
     current->visited = true;
 
     if(current->distance == vertex_distance_init_value
-       || current->index == destination)
+       || current->label == destination)
       break;
 
     // Neighbour :: std::pair<weight_type, vertex_type>
     for(neighbour_type& neighbour : current->neighbours)
     {
-      if(!vertices[neighbour.second].visited)
+      std::size_t index = label_map[neighbour.second];
+      if(!vertices[index].visited)
       {
         weight_type alternate_route = op(current->distance,neighbour.first);
 
-        if(comp(alternate_route, vertices[neighbour.second].distance))
-          vertices[neighbour.second].distance = alternate_route;
+        if(comp(alternate_route, vertices[index].distance))
+          vertices[index].distance = alternate_route;
       }
     }
 
@@ -214,7 +208,7 @@ WeightType dijkstra<WeightType,LabelType>::find_path_impl(
 
   } // while(nodes to visit)
 
-  return vertices[destination].distance;
+  return vertices[label_map[destination]].distance;
 }
 
 

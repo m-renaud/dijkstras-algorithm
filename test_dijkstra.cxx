@@ -1,45 +1,46 @@
 #include <iostream>
+#include <string>
 
 #include "dijkstra.hxx"
 
 int main()
 {
-  mrr::dijkstra<int> d;
+  mrr::dijkstra<int,std::string> d;
 
   d.add_vertex(
-    0,"A",
+    "A",
     {
-      {1,1},
-      {3,2}
+      {1,"B"},
+      {3,"C"}
     }
   );
 
   d.add_vertex(
-    1,"B",
+    "B",
     {
-      {1,0},
-      {1,2},
-      {4,3}
+      {1,"A"},
+      {1,"C"},
+      {4,"D"}
     }
   );
 
   d.add_vertex(
-    2,"C",
+    "C",
     {
-      {3,0},
-      {1,1},
-      {1,3}
+      {3,"A"},
+      {1,"B"},
+      {1,"D"}
     }
   );
 
   d.add_vertex(
-    3,"D",
+    "D",
     {
-      {4,1},
-      {1,2}
+      {4,"B"},
+      {1,"C"}
     }
   );
 
-  std::cout << d.find_shortest_path(0,3) << std::endl;
-  std::cout << d.find_shortest_path(1,3) << std::endl;
+  std::cout << d.find_shortest_path("A","D") << std::endl;
+  std::cout << d.find_shortest_path("B","D") << std::endl;
 }
