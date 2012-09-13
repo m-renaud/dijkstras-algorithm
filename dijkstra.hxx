@@ -93,12 +93,13 @@ public:
   >
   weight_type find_path(
     label_type start, label_type destination,
-    weight_type init_val = std::numeric_limits<weight_type>::max()
+    weight_type init_val = std::numeric_limits<weight_type>::max(),
+    weight_type start_init_val = 0
   )
   {
     vertex_distance_init_value = init_val;
     reset_graph();
-    return find_path_impl<Pred,Op>(start, destination);
+    return find_path_impl<Pred,Op>(start, destination, start_init_val);
   }
 
   weight_type find_shortest_path(
@@ -125,7 +126,10 @@ private:
   void reset_graph();
 
   template <typename Pred, typename Op = std::plus<weight_type> >
-  weight_type find_path_impl(label_type start, label_type destination);
+  weight_type find_path_impl(
+    label_type start, label_type destination,
+    weight_type start_init_val = 0
+  );
 
   // Graph representation
   std::vector<vertex_type> vertices;
@@ -156,7 +160,8 @@ void dijkstra<WeightType,LabelType>::reset_graph()
 template <typename WeightType, typename LabelType>
 template <typename Pred, typename Op>
 WeightType dijkstra<WeightType,LabelType>::find_path_impl(
-  label_type start, label_type destination
+  label_type start, label_type destination,
+  weight_type start_init_val
 )
 {
   vertex_type* current;
@@ -167,7 +172,7 @@ WeightType dijkstra<WeightType,LabelType>::find_path_impl(
   for(std::size_t i = 0; i < graph_size; ++i)
     unvisited_nodes[i] = &vertices[i];
 
-  vertices[label_map[start]].distance = 0;
+  vertices[label_map[start]].distance = start_init_val;
 
   std::make_heap(
     unvisited_nodes.begin(),
