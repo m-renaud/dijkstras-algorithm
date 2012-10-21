@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <functional>
 #include <limits>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -20,10 +20,10 @@ namespace mrr {
 template <typename WeightType, typename LabelType>
 struct dijkstra_vertex
 {
-  using weight_type = WeightType;
-  using label_type = LabelType;
-  using neighbour_type = std::pair<weight_type, label_type>;
-  using neighbour_list_type = std::vector<neighbour_type>;
+  typedef WeightType weight_type;
+  typedef LabelType label_type;
+  typedef std::pair<weight_type, label_type> neighbour_type;
+  typedef std::vector<neighbour_type> neighbour_list_type;
 
   dijkstra_vertex(
     label_type const& label_,
@@ -60,17 +60,17 @@ struct dijkstra_weight_compare
 template <typename WeightType, typename LabelType = std::size_t>
 class dijkstra
 {
-  using weight_type = WeightType;
-  using label_type = LabelType;
-  using vertex_type = dijkstra_vertex<weight_type, label_type>;
-  using vertex_list_type = std::vector<vertex_type>;
-  using size_type = typename vertex_list_type::size_type;
+  typedef WeightType weight_type;
+  typedef LabelType label_type;
+  typedef dijkstra_vertex<weight_type, label_type> vertex_type;
+  typedef std::vector<vertex_type> vertex_list_type;
+  typedef typename vertex_list_type::size_type size_type;
 
-  using neighbour_type = typename vertex_type::neighbour_type;
+  typedef typename vertex_type::neighbour_type neighbour_type;
 
 public:
 
-  using neighbour_list_type = typename vertex_type::neighbour_list_type;
+  typedef typename vertex_type::neighbour_list_type neighbour_list_type;
 
   dijkstra()
     : graph_size(0)
@@ -88,8 +88,8 @@ public:
   }
 
   template <
-    typename Pred = std::less<weight_type>,
-    typename Op = std::plus<weight_type>
+    typename Pred,
+    typename Op
   >
   weight_type find_path(
     label_type start, label_type destination,
@@ -109,7 +109,7 @@ public:
   {
     vertex_distance_init_value = init_val;
     reset_graph();
-    return find_path_impl<std::less<weight_type> >(start, destination);
+    return find_path_impl<std::less<weight_type>, std::plus<weight_type> >(start, destination);
   }
 
   weight_type find_longest_path(
@@ -125,7 +125,7 @@ public:
 private:
   void reset_graph();
 
-  template <typename Pred, typename Op = std::plus<weight_type> >
+  template <typename Pred, typename Op>
   weight_type find_path_impl(
     label_type start, label_type destination,
     weight_type start_init_val = 0
@@ -134,7 +134,7 @@ private:
   // Graph representation
   std::vector<vertex_type> vertices;
   size_type graph_size;
-  std::unordered_map<label_type, std::size_t> label_map;
+  std::map<label_type, std::size_t> label_map;
 
   // Path finding variables
   weight_type vertex_distance_init_value;
@@ -193,12 +193,17 @@ WeightType dijkstra<WeightType,LabelType>::find_path_impl(
       break;
 
     // Neighbour :: std::pair<weight_type, vertex_type>
-    for(neighbour_type& neighbour : current->neighbours)
+    for(
+      typename neighbour_list_type::iterator neighbour = current->neighbours.begin(),
+      n_end = current->neighbours.begin();
+      neighbour != n_end;
+      ++neighbour
+    )
     {
-      std::size_t index = label_map[neighbour.second];
+      std::size_t index = label_map[neighbour->second];
       if(!vertices[index].visited)
       {
-        weight_type alternate_route = op(current->distance,neighbour.first);
+        weight_type alternate_route = op(current->distance,neighbour->first);
 
         if(comp(alternate_route, vertices[index].distance))
           vertices[index].distance = alternate_route;

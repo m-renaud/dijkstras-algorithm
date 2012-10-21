@@ -9,41 +9,44 @@ int main()
   // We want a directed graph with edge weight represented as doubles
   // The type that we use to identify the vertices will be a std::string
   mrr::dijkstra<double,std::string> d;
+  mrr::dijkstra<double,std::string>::neighbour_list_type n;
 
   // Add each vertex, specifying it's name and it's neighbours
   // as vector<pair<edge_weight,name>>
+  n.push_back(std::make_pair(0.1,"B"));
+  n.push_back(std::make_pair(0.3,"C"));
   d.add_vertex(
     "A",
-    {
-      {0.1,"B"},
-      {0.3,"C"}
-    }
+    n
   );
+
+  n.clear();
+  n.push_back(std::make_pair(0.1,"A"));
+  n.push_back(std::make_pair(0.1,"C"));
+  n.push_back(std::make_pair(0.4,"D"));
 
   d.add_vertex(
     "B",
-    {
-      {0.1,"A"},
-      {0.1,"C"},
-      {0.4,"D"}
-    }
+    n
   );
+
+  n.clear();
+  n.push_back(std::make_pair(0.3,"A"));
+  n.push_back(std::make_pair(0.1,"B"));
+  n.push_back(std::make_pair(0.1,"D"));
 
   d.add_vertex(
     "C",
-    {
-      {0.3,"A"},
-      {0.1,"B"},
-      {0.1,"D"}
-    }
+    n
   );
+
+  n.clear();
+  n.push_back(std::make_pair(0.4,"B"));
+  n.push_back(std::make_pair(0.1,"C"));
 
   d.add_vertex(
     "D",
-    {
-      {0.4,"B"},
-      {0.1,"C"}
-    }
+    n
   );
 
   std::cout << d.find_shortest_path("A","D") << std::endl;
