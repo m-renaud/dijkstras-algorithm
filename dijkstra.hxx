@@ -180,7 +180,6 @@ WeightType dijkstra<WeightType,LabelType>::find_path_impl(
     dijkstra_weight_compare<weight_type,label_type,Pred>()
   );
 
-
   while(!unvisited_nodes.empty())
   {
     current = unvisited_nodes.front();
@@ -195,7 +194,7 @@ WeightType dijkstra<WeightType,LabelType>::find_path_impl(
     // Neighbour :: std::pair<weight_type, vertex_type>
     for(
       typename neighbour_list_type::iterator neighbour = current->neighbours.begin(),
-      n_end = current->neighbours.begin();
+      n_end = current->neighbours.end();
       neighbour != n_end;
       ++neighbour
     )
