@@ -52,13 +52,11 @@ int main()
   // Now treat them like probabilities and find the best probability path
   // - We want the highest probability so use std::greater for comparison
   // - We want to multiply the edge weight to find the new ``distance"
-  // - Our infinity value should be -inf
   // - Our initial distance will be 1
-  std::cout << d.find_path<std::greater<double>,std::multiplies<double> >(
-    "A","D",-std::numeric_limits<double>::max(), 1
-  );
 
-  endl(std::cout);
+  using std::greater;
+  using std::multiplies;
+  std::cout << d.find_path<greater,multiplies>("A", "D", 1) << std::endl;
 
   return 0;
 }
